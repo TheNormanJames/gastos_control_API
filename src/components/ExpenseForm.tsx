@@ -2,7 +2,7 @@ import { categories } from '../data/categories';
 import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DraftExpense } from '../types';
 import { Value } from '../types/index';
 import ErrorMessage from './ErrorMessage';
@@ -17,7 +17,15 @@ export default function ExpenseForm() {
   });
   const [error, setError] = useState('');
 
-  const { dispatch } = useBudget();
+  const { dispatch, state } = useBudget();
+  useEffect(() => {
+    if (state.editingid) {
+      const editingExpense = state.expenses.filter(
+        (currentExpense) => currentExpense.id === state.editingid
+      )[0];
+      setExpense(editingExpense);
+    }
+  }, [state.editingid]);
 
   const hangleChange = (
     e:
@@ -46,7 +54,14 @@ export default function ExpenseForm() {
       setError('Todos los campos son obligatorios');
       return;
     }
-    dispatch({ type: 'add-expense', payload: { expense } });
+    if (state.editingid) {
+      dispatch({
+        type: 'update-expense',
+        payload: { expense: { ...expense, id: state.editingid } },
+      });
+    } else {
+      dispatch({ type: 'add-expense', payload: { expense } });
+    }
 
     // Reiniciar
     setExpense({
@@ -59,7 +74,7 @@ export default function ExpenseForm() {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <legend className="uppercase text-center text-2xl font-black border-b-4 border-blue-500 py-2">
-        Nuevo Gasto
+        {state.editingid ? 'Actualizar Gasto' : 'Nuevo Gasto'}
       </legend>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -124,7 +139,7 @@ export default function ExpenseForm() {
       <input
         type="submit"
         className="bg-blue-600 cursor-pointer w-full p-2 text-white uppercase font-bold rounded-lg"
-        value="Registrar Gasto"
+        value={state.editingid ? 'Actualizar Gasto' : 'Registrar Gasto'}
       />
     </form>
   );

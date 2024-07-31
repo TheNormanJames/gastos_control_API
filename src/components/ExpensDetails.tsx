@@ -28,7 +28,13 @@ export default function ExpensDetails({ expense }: ExpensDetailsProps) {
 
   const leadingActions = () => (
     <LeadingActions>
-      <SwipeAction onClick={() => {}}>Actualizar</SwipeAction>
+      <SwipeAction
+        onClick={() =>
+          dispatch({ type: 'get-expense-by-id', payload: { id: expense.id } })
+        }
+      >
+        Actualizar
+      </SwipeAction>
     </LeadingActions>
   );
   const trailingActions = () => (
