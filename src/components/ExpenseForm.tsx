@@ -3,18 +3,21 @@ import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import { useState } from 'react';
-import { DarfExpense } from '../types';
+import { DraftExpense } from '../types';
 import { Value } from '../types/index';
 import ErrorMessage from './ErrorMessage';
+import { useBudget } from '../hooks/useBudget';
 
 export default function ExpenseForm() {
-  const [expense, setExpense] = useState<DarfExpense>({
+  const [expense, setExpense] = useState<DraftExpense>({
     amount: 0,
     expenseName: '',
     category: '',
     date: new Date(),
   });
   const [error, setError] = useState('');
+
+  const { dispatch } = useBudget();
 
   const hangleChange = (
     e:
@@ -43,7 +46,7 @@ export default function ExpenseForm() {
       setError('Todos los campos son obligatorios');
       return;
     }
-    console.log('Bien...');
+    dispatch({ type: 'add-expense', payload: { expense } });
   };
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
