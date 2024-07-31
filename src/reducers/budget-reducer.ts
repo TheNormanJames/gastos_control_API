@@ -1,4 +1,4 @@
-import { DraftExpense } from '../types';
+import { Category, DraftExpense } from '../types';
 import { Expense } from '../types/index';
 
 export type BudgetActions =
@@ -9,13 +9,15 @@ export type BudgetActions =
   | { type: 'remove-expense'; payload: { id: Expense['id'] } }
   | { type: 'get-expense-by-id'; payload: { id: Expense['id'] } }
   | { type: 'update-expense'; payload: { expense: Expense } }
-  | { type: 'reset-app' };
+  | { type: 'reset-app' }
+  | { type: 'add-filter-category'; payload: { id: Category['id'] } };
 
 export type BudgetState = {
   budget: number;
   modal: boolean;
   expenses: Expense[];
   editingid: Expense['id'];
+  currentCategory: Category['id'];
 };
 
 const initialBudget = (): number => {
@@ -34,6 +36,7 @@ export const initialState: BudgetState = {
   modal: false,
   expenses: localStorageExpenses(),
   editingid: '',
+  currentCategory: '',
 };
 
 const createExpense = (draftExpense: DraftExpense): Expense => {
@@ -105,6 +108,12 @@ export const budgetReducer = (
       modal: false,
       expenses: [],
       editingid: '',
+    };
+  }
+  if (action.type === 'add-filter-category') {
+    return {
+      ...state,
+      currentCategory: action.payload.id,
     };
   }
   return state;
