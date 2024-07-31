@@ -16,14 +16,16 @@ export default function ExpenseForm() {
     date: new Date(),
   });
   const [error, setError] = useState('');
+  const [previousAmount, setPreviousAmount] = useState(0);
 
-  const { dispatch, state } = useBudget();
+  const { dispatch, state, remainingBudget } = useBudget();
   useEffect(() => {
     if (state.editingid) {
       const editingExpense = state.expenses.filter(
         (currentExpense) => currentExpense.id === state.editingid
       )[0];
       setExpense(editingExpense);
+      setPreviousAmount(editingExpense.amount);
     }
   }, [state.editingid]);
 
@@ -54,6 +56,13 @@ export default function ExpenseForm() {
       setError('Todos los campos son obligatorios');
       return;
     }
+    // Validad que no pase del límite
+    if (expense.amount - previousAmount > remainingBudget) {
+      setError('Ese gasto se sale del presupuesto');
+      return;
+    }
+
+    // Agregar o actualizar Gasto
     if (state.editingid) {
       dispatch({
         type: 'update-expense',
@@ -70,6 +79,8 @@ export default function ExpenseForm() {
       category: '',
       date: new Date(),
     });
+
+    setPreviousAmount(0);
   };
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
